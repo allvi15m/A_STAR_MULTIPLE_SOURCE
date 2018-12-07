@@ -1,6 +1,6 @@
 
 %use mybib.bib for bibliography. bibtex is used for bibliography
-\documentclass[journal,12pt,onecolumn]{IEEEtran}
+\documentclass[journal]{IEEEtran}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{cite}
@@ -38,7 +38,7 @@
 
 \begin{document}
 
-\title{Multiple energy storage}
+\title{A Graph Search Based Energy Management Strategy for Grid-Connected Distributed Energy Resources Considering Present and Future System Status and System Constraints}
 
 \author{ Alvi~Newaz,~\IEEEmembership{Student Member,~IEEE,}
 Juan~Ospina,~\IEEEmembership{Student Member,~IEEE and}
@@ -49,19 +49,24 @@ Juan~Ospina,~\IEEEmembership{Student Member,~IEEE and}
 
 
 
-\maketitle                                                               
+\maketitle
 \IEEEpeerreviewmaketitle
-%\section{Multiple objective A}
+
+
+\begin{abstract}
+This paper proposes a novel energy management solution (EMS) for a microgrid or a distribution feeder containing grid-connected distributed energy resources (DERs). The proposed solution will take into consideration not only the present status of the system but also the forecasting of real-time price, renewable generation and system load. The EMS aims to optimize the use of dispatchable grid-connected DERs to achieve the minimum cost of operation while taking into consideration line constraints. To achieve this the ESM algorithm generates a graph based on the present and forecasted data and uses the A* search algorithm to find the minimum cost. The algorithm is validated using off-line simulation using pricing schemes from New York Independent System Operator (NYISO) and Pacific Gas and Electric (PG\&E) and system data from the sunshine state solar grid initiative (SUNGRIN) report. Real-time simulation results are also presented using the same data. The results show significant cost savings due to considering future status of the grid compared to optimizing based on only current system status.
+\end{abstract}
+\section{Introduction}
 With the increase in penetration of Renewable Energy Sources (RES) in the electric distribution network level, it is becoming increasingly difficult to establish stable network operation based on the traditional centralized control scheme of the grid \cite{WHY}. Especially the integration of photovoltaic and wind generation in the low voltage and medium voltage is making the grid less predictable and difficult to control. In general, today's power grid operation is based on day-ahead planning, in which the balancing of demand and generation of the grid is planned to determine optimum set points of operation. In case of a mismatch with the day ahead planning and real scenario a real-time control is usually put in place to take corrective actions \cite{WHY2}. The increasing uncertainty in the grid is resulting in the grid operating sub-optimally based on a day-ahead planned control strategy \cite{WHY2}. To tackle this uncertainty of RES integration, integrating energy storage into the grid has been proposed by several researchers \cite{WHY2,ESI1,ES2,ES3}. 
 
 This document proposes a graph search based control strategy to control multiple energy storage system (ESS). The goal of the control strategy is to provide the most cost optimum operation of the energy storages while providing peak shaving and ramp limiting functionality. In \cite{IM1} the researchers propose a control strategy to smooth out the output of a wind farm using the help of ESS. The control makes sure that the output of the wind farm matches a previously predicted output profile. It optimizes the use of the ESS over a prediction horizon to get better results. In \cite{IM2} researchers optimize ESS connected to a distribution feeder hosting a significant amount of renewable energy resources. The objective of the research is to most cost optimally operate the ESS. Reference \cite{IM3} looks at the optimum use of ESS from a transmission grid standpoint. And the researchers in \cite{IM4} show an IEE 14 bus system based proof of concept of an optimum power flow solution considering ESS. From the discussion thus far it is evident that the integration of RES into the distribution grid is creating some new challenges for grid operation and there has been significant research done to show that ESS can be deployed as a possible solution to counteract the uncertainties introduced to the grid by RES integration. To most optimally control the ESS there needs to be a real-time algorithm which takes into account current and predicted system status \cite{gupta_francis_ospina_newaz_2018}. In case of multiple ESS connected to a distribution system, it is also imperative that the solution obtained does not violate any system constraints \cite{rt4}. So an optimum solution considering both system architecture and constraints and current and predicted system status is necessary to most cost optimally control the ESS while providing necessary services like peak shaving and output ramp rate limiting.
 
-
+\section{Methodology}
 The methodology for solving the problem of optimally controlling the energy storage considering grid constraints and forecasted system status will be developed using a combination of linear programming DC power flow and a graph search solution obtained from the utilization of the A* \cite{a8book} algorithm. The solution will find an optimum and more cost-effective solution to dispatch available energy storage systems in the grid. The solution will take into account not only the present status of the system but also the forecasted values of the grid energy prices, load demand, and generation. The use of the available resources will be optimized by finding the optimum path in a graph search problem formulated to reflect different operation scenarios of the system. Figure \ref{fig:F1_1_Dis} represents a simple example of the graph search formulation of the problem. The values on top of the figure represent the current time step. The values inside the boxes represent the percentage of total energy storage (ES) capacity available in the system. These boxes are the nodes of the graph. The arrows from one box to the next represent the edges of the graph. The values at the bottom of the graph represent the power demand of the system between the current and previous time step. It is assumed that the system power demand is constant between time steps. The system status at T=0 is known from the current measurement. The nodes at T=15, T=30 and T=45 are created based on forecasted values. The target of the solution is to find the most cost optimal path to reach T=45 based on the predictions available. The actual graph formulated will expand 24 hours into the future (T=0 to T=1440) with 15 minute time interval. And the states between the upper and lower limit of the Total energy of the system will be discretized with steps of 2\%.
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width = 0.5\linewidth]{figs/F1_1_Dis.png}
+\includegraphics[width = \linewidth]{figs/F1_1_Dis.png}
 \caption{Graph formulation}
 \label{fig:F1_1_Dis}
 \end{figure}
@@ -75,14 +80,14 @@ The cost of the edges is calculated according to equation \ref{eq:COST_FUN}.
 Here, $C_{total}$ is the total cost of energy. $E_{grid}$ is the energy drawn from the grid. $R_{grid}$ is the rate of using grid energy. $N_{ES}$ is the total number of energy storage available in the system. $E_{ES}(n)$ and $r_{ES}(n)$ represent the energy usage and the rate of using the $n^{th}$ energy storage. The total energy usage of the energy storages is determined by subtracting the energy at the current node from its parent node. After determining the total energy usage the energy usage is divided between the available energy storages by formulating a linear program to solve the DC optimum power-flow of the grid. Figure \ref{fig:one_line} shows a simplified one-line diagram of an example distribution grid. The grid has 5 buses denoted by the encircled numbers 1,2,3,4 and 5. G denotes the transmission grid. ES1 and ES2 are two energy storages connected to buses 2 and 5. D2, D3, D4 and D5 denotes the demand for the buses 2,3,4 and 5. L1, L2, L3 and L4 represent the maximum power the lines between buses 1 \& 2, 2 \& 3, 3 \& 4 and 4 \& 5 can carry. The impedances of the lines are X1j, X2j, X3j and X4j.
 \begin{figure}[!ht]
 \centering
-\includegraphics[width = 0.6\linewidth]{{figs/One_line_diagram.png}}
+\includegraphics[width = \linewidth]{{figs/ONE_LINE.png}}
 \caption{One-line diagram of simplified distribution system}
 \label{fig:one_line}
 \end{figure}
 
 A formulation of the linearized economic dispatch problem is shown for this system. Let us assume the total energy difference between the parent and child node of the edge is $\Delta E$. So the total energy supplied by the energy storages $ES1$ and $ES2$ will be $\Delta E$. Let us assume the maximum energy ES1 and ES2 can charge or discharge in between the time steps is $E1_{max}$ and $E2_{max}$. The maximum energy $E1$ and $E2$ can hold are $\overline{E1}$ and $\overline{E2}$ and the minimum energy level $ES1$ and $ES2$ are allowed to be are $\underline{E1}$ and $\underline{E2}$. Taking these values into consideration the economic dispatch problem can be represented as a linear program as follows
 
-Minimize: \\
+Minimize: \textcolor{red}{THIS IS WRONG. UPDATE WITH FINAL EQUATION}  \\
 \begin{equation}
 \label{eq:minimize}
     E_{grid}*r_{grid} + E_{ES}(1)*r_{ES}(1) + E_{ES}(2)*r_{ES}(2)
